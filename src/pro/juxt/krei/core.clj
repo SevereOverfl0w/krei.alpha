@@ -1,8 +1,6 @@
 (ns pro.juxt.krei.core
   (:require
-    [shadow.cljs.devtools.api :as shadow]
-    [shadow.cljs.devtools.server :as shadow.server]
-    [shadow.cljs.devtools.config :as shadow.config]
+    [figwheel-sidecar.repl-api :as repl-api]
     [clojure.java.classpath :as classpath]
     [juxt.dirwatch :as dirwatch]
     [me.raynes.fs :as fs]
@@ -52,23 +50,26 @@
 
 (defn watch
   "Returns a function which will stop the watcher"
-  ;; TODO: Watch krei files & reconfigure shadow on changes.
+  ;; TODO: Watch krei files & reconfigure figwheel on changes.
   []
   (let [krei-files (read-krei-files)
+
+        classpath-dirs (classpath/classpath-directories)
 
         krei-builders (mapv
                         (fn [path]
                           (dirwatch/watch-dir (fn [p] (println p) (build))
                                               (io/file path)))
-                        (classpath/classpath-directories))
-        shadow-builds (sequence
-                        (comp (map :krei.shadow/builds)
-                              cat)
-                        krei-files)]
+                        (classpath/classpath-directories))]
     ;; TODO: Update default config with target location
-    (shadow.server/start! shadow.config/default-config)
-    (run! shadow/watch shadow-builds)
+    (repl-api/start-figwheel!
+      {:all-builds (doto (into []
+                               (comp (map :krei.figwheel/builds)
+                                     cat
+                                     (map #(assoc % :source-paths (map str classpath-dirs)))
+                                     (map #(update % :compiler merge {:optimizations :none})))
+                               krei-files)
+                     prn)})
     (fn []
       (run! dirwatch/close-watcher krei-builders)
-      (run! shadow/stop-worker (map :build-id shadow-builds))
-      (shadow.server/stop!))))
+      (repl-api/stop-figwheel!))))

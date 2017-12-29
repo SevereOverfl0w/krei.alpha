@@ -23,10 +23,12 @@
     me.raynes/fs {:mvn/version "1.4.6"}
     juxt/dirwatch {:mvn/version "0.2.3"}
     org.clojure/java.classpath {:mvn/version "0.2.3"}
-    thheller/shadow-cljs {:mvn/version "2.0.123"}
 
-    ;; There's a bug in tools.deps.alpha, (TDEPS-26)
-    org.jboss.xnio/xnio-nio {:mvn/version "3.3.6.Final"}
+    ;; you get this without the exclusion:
+    ;; CompilerException java.lang.RuntimeException: Unable to find static field: FUNCTION_PARAMS in class com.google.javascript.jscomp.DiagnosticGroups, compiling:(cljs/closure.clj:100:1)
+    figwheel-sidecar {:mvn/version "0.5.14"
+                      :exclusions  [com.google.javascript/closure-compiler]}
+    org.clojure/clojurescript {:mvn/version "1.9.946"}
   }
 
   ;; Aliases
