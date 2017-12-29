@@ -32,7 +32,7 @@
 
 (defn build
   []
-  (fs/delete-dir "/tmp/mono/target/public/css/")
+  (fs/delete-dir "./target/public/css/")
   (let [krei-files (read-krei-files)]
     (run!
       (fn [[input-file relative-path]]
@@ -40,7 +40,7 @@
           input-file
           ;; TODO: How do I choose where to dump files?
           ;; TODO: (Maybe) take an option for the subpath to build CSS into?
-          (io/file "/tmp/mono/target/public/css"
+          (io/file "./target/public/css"
                    (string/replace relative-path #"\.scss$" ".css"))
           ;; TODO: Take options
           {}))
@@ -48,8 +48,7 @@
         (map :krei.sass/files)
         cat
         (map (juxt (comp io/resource) identity))
-        krei-files)))
-  )
+        krei-files))))
 
 (defn watch
   "Returns a function which will stop the watcher"
