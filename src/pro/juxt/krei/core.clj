@@ -63,7 +63,8 @@
                         (classpath/classpath-directories))]
     ;; TODO: Update default config with target location
     (repl-api/start-figwheel!
-      {:all-builds (doto (into []
+      {:figwheel-options {:css-dirs ["target"]}
+       :all-builds (doto (into []
                                (comp (map :krei.figwheel/builds)
                                      cat
                                      (map #(assoc % :source-paths (map str classpath-dirs)))
