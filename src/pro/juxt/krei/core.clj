@@ -30,7 +30,9 @@
 
 (defn build
   []
-  (fs/delete-dir "./target/public/css/")
+  ;; figwheel can't handle the deleting of this directory, and just blows up,
+  ;; so leave stale files hanging around, it'll be fine, he says.
+  ;; (fs/delete-dir "./target/public/css/")
   (let [krei-files (read-krei-files)]
     (run!
       (fn [[input-file relative-path]]
