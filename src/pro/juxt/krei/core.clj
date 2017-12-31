@@ -7,7 +7,9 @@
     [clojure.string :as string]
     [clojure.java.io :as io]
     [sass4clj.core :as sass]
-    [clojure.edn :as edn]))
+    [clojure.edn :as edn]
+    [cljs.build.api]
+    [pro.juxt.krei.impl.util :refer [deleting-tmp-dir]]))
 
 (defn make-jar
   [output files]
@@ -54,24 +56,69 @@
   "Returns a function which will stop the watcher"
   ;; TODO: Watch krei files & reconfigure figwheel on changes.
   []
-  (let [krei-files (read-krei-files)
+  (let [target (.toPath (io/file "target"))
+        target-relative #(.resolve target %)
+        krei-files (read-krei-files)
 
-        classpath-dirs (classpath/classpath-directories)
+        classpath-dirs (remove
+                         ;; Filter out build directory, as it's on the classpath in dev
+                         #(= (.toPath %) (.toAbsolutePath target))
+                         (classpath/classpath-directories))
 
         krei-builders (mapv
                         (fn [path]
-                          (dirwatch/watch-dir (fn [p] (println p) (build))
+                          (dirwatch/watch-dir (fn [p]
+                                                (println p)
+                                                (build))
                                               (io/file path)))
-                        (classpath/classpath-directories))]
+                        classpath-dirs)]
     ;; TODO: Update default config with target location
     (repl-api/start-figwheel!
-      {:figwheel-options {:css-dirs ["target"]}
+      {:figwheel-options {:css-dirs [(str target)]}
        :all-builds (into []
                          (comp (map :krei.figwheel/builds)
                                cat
                                (map #(assoc % :source-paths (map str classpath-dirs)))
-                               (map #(update % :compiler merge {:optimizations :none})))
+                               (map #(update % :compiler merge {:optimizations :none}))
+                               (map #(update-in % [:compiler :output-dir] (comp str target-relative)))
+                               (map #(update-in % [:compiler :output-to] (comp str target-relative))))
                          krei-files)})
     (fn []
       (run! dirwatch/close-watcher krei-builders)
       (repl-api/stop-figwheel!))))
+
+(defn prod-build
+  [classpath-output]
+  (let [build-data (deleting-tmp-dir "prod-build-data")
+        krei-files (read-krei-files)]
+    (run!
+      (fn [[input-file relative-path]]
+        (sass/sass-compile-to-file
+          input-file
+          (-> classpath-output
+              ;; TODO: Take an option for the subpath to build CSS into
+              (.resolve "public/css")
+              (.resolve (string/replace relative-path #"\.scss$" ".css"))
+              (.toFile))
+          ;; TODO: Take options
+          {}))
+      (eduction
+        (map :krei.sass/files)
+        cat
+        (map (juxt io/resource identity))
+        krei-files))
+    (run!
+      #(cljs.build.api/build (mapv str (classpath/classpath-directories)) %)
+      (into []
+            (comp (map :krei.figwheel/builds)
+                  cat
+                  (map :compiler)
+                  (map #(assoc %
+                               :optimizations :advanced
+                               :source-map false
+                               :closure-defines {'goog.DEBUG false}
+                               :output-dir (str (.resolve build-data "cljs"))))
+                  (map (fn [c] (update c
+                                       :output-to
+                                       #(str (.resolve classpath-output %))))))
+            krei-files))))
