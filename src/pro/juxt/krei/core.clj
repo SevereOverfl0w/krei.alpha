@@ -83,6 +83,7 @@
                                (map #(update-in % [:compiler :output-dir] (comp str target-relative)))
                                (map #(update-in % [:compiler :output-to] (comp str target-relative))))
                          krei-files)})
+    (build)
     (fn []
       (run! dirwatch/close-watcher krei-builders)
       (repl-api/stop-figwheel!))))
