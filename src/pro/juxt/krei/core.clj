@@ -11,10 +11,6 @@
     [cljs.build.api]
     [pro.juxt.krei.impl.util :refer [deleting-tmp-dir]]))
 
-(defn make-jar
-  [output files]
-  (println "nop"))
-
 (defn- list-resources [file]
   (enumeration-seq
     (.getResources
