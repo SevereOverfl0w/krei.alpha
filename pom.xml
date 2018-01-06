@@ -42,13 +42,18 @@
       <version>1.9.946</version>
     </dependency>
   </dependencies>
-  <build>
-    <sourceDirectory>src</sourceDirectory>
-  </build>
   <repositories>
     <repository>
       <id>clojars</id>
       <url>https://clojars.org/repo</url>
     </repository>
   </repositories>
+
+  <build>
+   <resources>
+     <resource>
+       <directory>src</directory>
+     </resource>
+   </resources>
+  </build>
 </project>
