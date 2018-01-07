@@ -36,9 +36,7 @@
       (fn [[input-file relative-path]]
         (sass/sass-compile-to-file
           input-file
-          ;; TODO: How do I choose where to dump files?
-          ;; TODO: (Maybe) take an option for the subpath to build CSS into?
-          (io/file "./target/public/css"
+          (io/file "./target"
                    (string/replace relative-path #"\.scss$" ".css"))
           ;; TODO: Take options
           {}))
