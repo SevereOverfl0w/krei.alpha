@@ -69,6 +69,12 @@
     ;; TODO: Update default config with target location
     (repl-api/start-figwheel!
       {:figwheel-options {:css-dirs [(str target)]}
+
+       :build-ids (into []
+                        (comp (map :krei.figwheel/builds)
+                              cat
+                              (map :id))
+                        krei-files)
        :all-builds (into []
                          (comp (map :krei.figwheel/builds)
                                cat
