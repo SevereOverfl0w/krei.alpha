@@ -1,6 +1,8 @@
 (ns pro.juxt.krei.core
   (:require
     [figwheel-sidecar.repl-api :as repl-api]
+    [figwheel-sidecar.components.figwheel-server :as figwheel.server]
+    [figwheel-sidecar.utils :as figwheel.utils]
     [clojure.java.classpath :as classpath]
     [juxt.dirwatch :as dirwatch]
     [me.raynes.fs :as fs]
@@ -46,6 +48,19 @@
         (map (juxt (comp io/resource) identity))
         krei-files))))
 
+(defn- figwheel-notify
+  [file figwheel-system]
+  (when (and repl-api/*repl-api-system*
+             (-> file
+                 str
+                 (string/ends-with? ".html")))
+    (figwheel.server/send-message
+      (:figwheel-system repl-api/*repl-api-system*)
+      ::figwheel.server/broadcast
+      {:msg-name :html-files-changed
+       :files [{:type :html
+                :file (figwheel.utils/remove-root-path file)}]})))
+
 (defn watch
   "Returns a function which will stop the watcher"
   ;; TODO: Watch krei files & reconfigure figwheel on changes.
@@ -61,10 +76,15 @@
 
         krei-builders (mapv
                         (fn [path]
-                          (dirwatch/watch-dir (fn [p]
-                                                (println p)
-                                                (build))
-                                              (io/file path)))
+                          (dirwatch/watch-dir
+                            (fn [p]
+                              (println p)
+                              (build)
+                              (when repl-api/*repl-api-system*
+                                (figwheel-notify
+                                  (:file p)
+                                  repl-api/*repl-api-system*)))
+                            (io/file path)))
                         classpath-dirs)]
     ;; TODO: Update default config with target location
     (repl-api/start-figwheel!
@@ -80,6 +100,7 @@
                                cat
                                (map #(assoc % :source-paths (map str classpath-dirs)))
                                (map #(update % :compiler merge {:optimizations :none}))
+                               (map #(update-in % [:compiler :preloads] conj 'pro.juxt.krei.figwheel-injector))
                                (map #(update-in % [:compiler :output-dir] (comp str target-relative)))
                                (map #(update-in % [:compiler :output-to] (comp str target-relative))))
                          krei-files)})
