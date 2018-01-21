@@ -24,10 +24,7 @@
     juxt/dirwatch {:mvn/version "0.2.3"}
     org.clojure/java.classpath {:mvn/version "0.2.3"}
 
-    ;; you get this without the exclusion:
-    ;; CompilerException java.lang.RuntimeException: Unable to find static field: FUNCTION_PARAMS in class com.google.javascript.jscomp.DiagnosticGroups, compiling:(cljs/closure.clj:100:1)
-    figwheel-sidecar {:mvn/version "0.5.14"
-                      :exclusions  [com.google.javascript/closure-compiler]}
+    figwheel-sidecar {:mvn/version "0.5.14"}
     org.clojure/clojurescript {:mvn/version "1.9.946"}
   }
 
