@@ -5,6 +5,11 @@
   <artifactId>krei.alpha</artifactId>
   <version>0.1.0</version>
   <name>Krei</name>
+  <url>https://gitlab.com/juxt/mono-repo</url>
+  <scm>
+    <url>git@gitlab.com:juxt/mono-repo.git</url>
+    <tag>HEAD</tag>
+  </scm>
   <dependencies>
     <dependency>
       <groupId>org.clojure</groupId>
