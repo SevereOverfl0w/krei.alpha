@@ -118,8 +118,6 @@
         (sass/sass-compile-to-file
           input-file
           (-> classpath-output
-              ;; TODO: Take an option for the subpath to build CSS into
-              (.resolve "public/css")
               (.resolve (string/replace relative-path #"\.scss$" ".css"))
               (.toFile))
           ;; TODO: Take options
