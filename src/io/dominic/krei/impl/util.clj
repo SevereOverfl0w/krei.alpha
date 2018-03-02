@@ -1,4 +1,4 @@
-(ns pro.juxt.krei.impl.util
+(ns io.dominic.krei.impl.util
   (:require
     [me.raynes.fs :as fs])
   (:import

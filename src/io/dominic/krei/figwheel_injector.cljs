@@ -1,4 +1,4 @@
-(ns pro.juxt.krei.figwheel-injector
+(ns io.dominic.krei.figwheel-injector
   "Adds support for html file reloading to figwheel"
   (:require
     [figwheel.client :as fig]))
