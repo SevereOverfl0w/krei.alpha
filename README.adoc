@@ -1,0 +1,72 @@
+= Krei
+
+A build-tool tailored for solving problems I have.
+
+== Rationale
+
+Krei is trying to solve the following problems:
+
+. Building web-apps using the `clj` command line tool
+. Building applications in a mono-repo, where your _dependencies_ have builds too
+
+== Usage
+
+.Ensure target exists before starting the JVM
+[source]
+----
+$ mkdir -p target
+$ touch target/.gitkeep
+$ git add target/.gitkeep
+$ echo "**/target/**
+!**/target/.gitkeep" >> .gitignore
+----
+
+[source,clojure]
+.src/krei-file.edn
+----
+{:krei.sass/files ["platform/magic.scss"] <1>
+ :krei.figwheel/builds [{:id "platform-app" <2>
+                         :figwheel true
+                         :compiler
+                         {:main myproject.platform.app
+                          :output-to "public/platform.js"
+                          :output-dir "public/platform"
+                          :asset-path "/public/platform/"}}]}
+----
+<1> Identify any scss files you'd like to have built
+<2> Identify builds of clojurescript
+
+=== During development
+
+[source,clojure]
+.dev/load-krei.clj
+----
+(ns ^{:clojure.tools.namespace.repl/load false}
+  load-krei
+  (:require
+    [io.dominic.krei.alpha.core :as krei]))
+
+(def krei (krei/watch))
+----
+
+[source,clojure]
+.dev/user.clj
+----
+(ns user
+  (:require [load-krei]))
+----
+
+=== Building for Production
+
+I designed this to be run as part of a makefile or shell script.
+
+[source]
+----
+$ clj -m io.dominic.krei.alpha.main production "$output-directory"
+----
+
+== FAQ
+
+[qanda]
+Why not use a component?:: Because components stop & start, and that is not something you generally want every time you `(reset)` for your cljs & file watcher.
+Will you support X?:: Maybe. I'm still figuring out the direction of Krei.
