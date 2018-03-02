@@ -1,4 +1,4 @@
-(ns io.dominic.krei.core
+(ns io.dominic.krei.alpha.core
   (:require
     [figwheel-sidecar.repl-api :as repl-api]
     [figwheel-sidecar.components.figwheel-server :as figwheel.server]
@@ -11,7 +11,7 @@
     [sass4clj.core :as sass]
     [clojure.edn :as edn]
     [cljs.build.api]
-    [io.dominic.krei.impl.util :refer [deleting-tmp-dir]]))
+    [io.dominic.krei.alpha.impl.util :refer [deleting-tmp-dir]]))
 
 (defn- list-resources [file]
   (enumeration-seq
@@ -26,7 +26,7 @@
 (defn read-krei-files
   []
   (map (comp clojure.edn/read #(java.io.PushbackReader. %) io/reader)
-       (io.dominic.krei.core/find-krei-files)))
+       (io.dominic.krei.alpha.core/find-krei-files)))
 
 (defn build
   []
@@ -100,7 +100,7 @@
                                cat
                                (map #(assoc % :source-paths (map str classpath-dirs)))
                                (map #(update % :compiler merge {:optimizations :none}))
-                               (map #(update-in % [:compiler :preloads] conj 'io.dominic.krei.figwheel-injector))
+                               (map #(update-in % [:compiler :preloads] conj 'io.dominic.krei.alpha.figwheel-injector))
                                (map #(update-in % [:compiler :output-dir] (comp str target-relative)))
                                (map #(update-in % [:compiler :output-to] (comp str target-relative))))
                          krei-files)})

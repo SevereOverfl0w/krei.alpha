@@ -1,6 +1,6 @@
-(ns io.dominic.krei.main
+(ns io.dominic.krei.alpha.main
   (:require
-    [io.dominic.krei.core :as krei])
+    [io.dominic.krei.alpha.core :as krei])
   (:import
     [java.nio.file Paths]))
 

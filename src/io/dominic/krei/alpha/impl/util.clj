@@ -1,4 +1,4 @@
-(ns io.dominic.krei.impl.util
+(ns io.dominic.krei.alpha.impl.util
   (:require
     [me.raynes.fs :as fs])
   (:import
