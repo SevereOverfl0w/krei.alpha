@@ -87,27 +87,35 @@
                             (io/file path)))
                         classpath-dirs)]
     ;; TODO: Update default config with target location
-    (repl-api/start-figwheel!
-      {:figwheel-options {:css-dirs [(str target)]}
+    (when (seq (into []
+                     (comp (map :krei.figwheel/builds)
+                           cat)
+                     krei-files))
+      (repl-api/start-figwheel!
+        {:figwheel-options {:css-dirs [(str target)]}
 
-       :build-ids (into []
-                        (comp (map :krei.figwheel/builds)
-                              cat
-                              (map :id))
-                        krei-files)
-       :all-builds (into []
-                         (comp (map :krei.figwheel/builds)
-                               cat
-                               (map #(assoc % :source-paths (map str classpath-dirs)))
-                               (map #(update % :compiler merge {:optimizations :none}))
-                               (map #(update-in % [:compiler :preloads] conj 'io.dominic.krei.alpha.figwheel-injector))
-                               (map #(update-in % [:compiler :output-dir] (comp str target-relative)))
-                               (map #(update-in % [:compiler :output-to] (comp str target-relative))))
-                         krei-files)})
+         :build-ids (into []
+                          (comp (map :krei.figwheel/builds)
+                                cat
+                                (map :id))
+                          krei-files)
+         :all-builds (into []
+                           (comp (map :krei.figwheel/builds)
+                                 cat
+                                 (map #(assoc % :source-paths (map str classpath-dirs)))
+                                 (map #(update % :compiler merge {:optimizations :none}))
+                                 (map #(update-in % [:compiler :preloads] conj 'io.dominic.krei.alpha.figwheel-injector))
+                                 (map #(update-in % [:compiler :output-dir] (comp str target-relative)))
+                                 (map #(update-in % [:compiler :output-to] (comp str target-relative))))
+                           krei-files)}))
     (build)
     (fn []
       (run! dirwatch/close-watcher krei-builders)
-      (repl-api/stop-figwheel!))))
+      (when (seq (into []
+                       (comp (map :krei.figwheel/builds)
+                             cat)
+                       krei-files))
+        (repl-api/stop-figwheel!)))))
 
 (defn prod-build
   [classpath-output]
