@@ -11,6 +11,13 @@ Krei is trying to solve the following problems:
 
 == Usage
 
+.Add to deps.edn
+[source]
+----
+io.dominic/krei.alpha {:git/url "https://github.com/SevereOverfl0w/krei.alpha.git"
+                       :sha "a18a13e83f81fde9eb437ec08c0426e90f0a8161"}
+----
+
 .Ensure target exists before starting the JVM
 [source]
 ----
