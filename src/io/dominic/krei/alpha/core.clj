@@ -78,7 +78,6 @@
                         (fn [path]
                           (dirwatch/watch-dir
                             (fn [p]
-                              (println p)
                               (build)
                               (when repl-api/*repl-api-system*
                                 (figwheel-notify
