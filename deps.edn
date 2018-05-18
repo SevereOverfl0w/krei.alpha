@@ -8,5 +8,5 @@
    juxt/dirwatch {:mvn/version "0.2.3"}
    org.clojure/java.classpath {:mvn/version "0.2.3"}
 
-   figwheel-sidecar {:mvn/version "0.5.15"}
+   figwheel-sidecar {:mvn/version "0.5.16"}
    org.clojure/clojurescript {:mvn/version "1.9.946"}}}
