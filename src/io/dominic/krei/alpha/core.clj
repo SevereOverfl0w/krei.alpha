@@ -28,7 +28,7 @@
   (map (comp clojure.edn/read #(java.io.PushbackReader. %) io/reader)
        (io.dominic.krei.alpha.core/find-krei-files)))
 
-(defn build
+(defn build-sass
   []
   ;; figwheel can't handle the deleting of this directory, and just blows up,
   ;; so leave stale files hanging around, it'll be fine, he says.
@@ -78,7 +78,11 @@
                         (fn [path]
                           (dirwatch/watch-dir
                             (fn [p]
-                              (build)
+                              (when (let [x (.getName (:file p))]
+                                      (or
+                                        (string/ends-with? x ".scss")
+                                        (string/ends-with? x ".sass")))
+                                (build-sass))
                               (when repl-api/*repl-api-system*
                                 (figwheel-notify
                                   (:file p)
@@ -107,7 +111,7 @@
                                  (map #(update-in % [:compiler :output-dir] (comp str target-relative)))
                                  (map #(update-in % [:compiler :output-to] (comp str target-relative))))
                            krei-files)}))
-    (build)
+    (build-sass)
     (fn []
       (run! dirwatch/close-watcher krei-builders)
       (when (seq (into []
