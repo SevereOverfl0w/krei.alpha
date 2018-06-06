@@ -11,7 +11,8 @@
     [sass4clj.core :as sass]
     [clojure.edn :as edn]
     [cljs.build.api]
-    [io.dominic.krei.alpha.impl.util :refer [deleting-tmp-dir]]))
+    [io.dominic.krei.alpha.impl.util :refer [deleting-tmp-dir]]
+    [io.dominic.krei.alpha.impl.debounce :as krei.debounce]))
 
 (defn- list-resources [file]
   (enumeration-seq
@@ -49,17 +50,21 @@
         krei-files))))
 
 (defn- figwheel-notify
-  [file figwheel-system]
-  (when (and repl-api/*repl-api-system*
-             (-> file
-                 str
-                 (string/ends-with? ".html")))
+  [files figwheel-system]
+  (when-let [files' (and repl-api/*repl-api-system*
+                         (->> files
+                              (map str)
+                              (filter #(string/ends-with? % ".html"))
+                              seq))]
     (figwheel.server/send-message
       (:figwheel-system repl-api/*repl-api-system*)
       ::figwheel.server/broadcast
       {:msg-name :html-files-changed
-       :files [{:type :html
-                :file (figwheel.utils/remove-root-path file)}]})))
+       :files (map
+                (fn [file]
+                  [{:type :html
+                    :file (figwheel.utils/remove-root-path file)}])
+                files')})))
 
 (defn watch
   "Returns a function which will stop the watcher"
@@ -74,19 +79,25 @@
                          #(= (.toPath %) (.toAbsolutePath target))
                          (classpath/classpath-directories))
 
+        debounce-a (agent nil)
+
+        receiver (krei.debounce/receiver
+                   (krei.debounce/schedule
+                     debounce-a
+                     (fn [events]
+                       (when repl-api/*repl-api-system*
+                         (figwheel-notify
+                           (map :file events)
+                           repl-api/*repl-api-system*))
+                       (when (some #(re-matches #".*\.s[ca]ss$" (.getName (:file %)))
+                                   events)
+                         (build-sass)))
+                     50))
+
         krei-builders (mapv
                         (fn [path]
                           (dirwatch/watch-dir
-                            (fn [p]
-                              (when (let [x (.getName (:file p))]
-                                      (or
-                                        (string/ends-with? x ".scss")
-                                        (string/ends-with? x ".sass")))
-                                (build-sass))
-                              (when repl-api/*repl-api-system*
-                                (figwheel-notify
-                                  (:file p)
-                                  repl-api/*repl-api-system*)))
+                            #(send debounce-a receiver %)
                             (io/file path)))
                         classpath-dirs)]
     ;; TODO: Update default config with target location
