@@ -20,21 +20,18 @@
       (.. Thread currentThread getContextClassLoader)
       file)))
 
-(defn find-krei-files
-  []
+(defn find-krei-files []
   (list-resources "krei-file.edn"))
 
-(defn read-krei-files
-  []
-  (map (comp clojure.edn/read #(java.io.PushbackReader. %) io/reader)
-       (io.dominic.krei.alpha.core/find-krei-files)))
+(defn read-krei-file [f]
+  (-> f io/reader java.io.PushbackReader. clojure.edn/read))
 
 (defn build-sass
   []
   ;; figwheel can't handle the deleting of this directory, and just blows up,
   ;; so leave stale files hanging around, it'll be fine, he says.
   ;; (fs/delete-dir "./target/public/css/")
-  (let [krei-files (read-krei-files)]
+  (let [krei-files (map read-krei-file (find-krei-files))]
     (run!
       (fn [[input-file relative-path]]
         (sass/sass-compile-to-file
@@ -71,8 +68,7 @@
   ;; TODO: Watch krei files & reconfigure figwheel on changes.
   []
   (let [target (.toPath (io/file "target"))
-        target-relative #(.resolve target %)
-        krei-files (read-krei-files)
+        krei-files (map read-krei-file (find-krei-files))
 
         classpath-dirs (remove
                          ;; Filter out build directory, as it's on the classpath in dev
@@ -134,7 +130,7 @@
 (defn prod-build
   [classpath-output]
   (let [build-data (deleting-tmp-dir "prod-build-data")
-        krei-files (read-krei-files)]
+        krei-files (map read-krei-file (find-krei-files))]
     (run!
       (fn [[input-file relative-path]]
         (sass/sass-compile-to-file
