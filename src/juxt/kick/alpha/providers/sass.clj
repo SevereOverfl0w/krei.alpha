@@ -1,11 +1,13 @@
+;; Copyright © 2018, JUXT LTD.
+
 ;; Suggested dependencies: deraen/sass4clj {:mvn/version "0.3.1"}
 
-(ns io.dominic.krei.alpha.providers.sass
+(ns juxt.kick.alpha.providers.sass
   (:require
    [clojure.java.io :as io]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
-   [io.dominic.krei.alpha.core :as kick]
+   [juxt.kick.alpha.core :as kick]
    [sass4clj.core :as sass]))
 
 ;; Sass

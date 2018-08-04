@@ -1,15 +1,17 @@
+;; Copyright © 2018, JUXT LTD.
+
 ;; Suggested dependencies:
 ;; figwheel-sidecar {:mvn/version "0.5.16"}
 ;; org.clojure/clojurescript {:mvn/version "1.9.946"}
 
-(ns io.dominic.krei.alpha.providers.figwheel
+(ns juxt.kick.alpha.providers.figwheel
   (:require
    [clojure.string :as string]
    [clojure.tools.logging :as log]
    [figwheel-sidecar.repl-api :as repl-api]
    [figwheel-sidecar.components.figwheel-server :as figwheel.server]
    [figwheel-sidecar.utils :as figwheel.utils]
-   [io.dominic.krei.alpha.core :as kick]))
+   [juxt.kick.alpha.core :as kick]))
 
 ;; Figwheel
 
@@ -42,7 +44,7 @@
                          (comp
                            (map #(assoc % :source-paths (map str classpath-dirs)))
                            (map #(update % :compiler merge {:optimizations :none}))
-                           (map #(update-in % [:compiler :preloads] conj 'io.dominic.krei.alpha.providers.figwheel.injector))
+                           (map #(update-in % [:compiler :preloads] conj 'juxt.kick.alpha.providers.figwheel.injector))
                            (map #(update-in % [:compiler :output-dir] (comp str target-relative)))
                            (map #(update-in % [:compiler :output-to] (comp str target-relative))))
                          builds)})))

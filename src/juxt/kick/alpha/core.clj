@@ -1,13 +1,15 @@
-(ns io.dominic.krei.alpha.core
+;; Copyright © 2018, JUXT LTD.
+
+(ns juxt.kick.alpha.core
   (:require
    [clojure.java.classpath :as classpath]
    [clojure.tools.logging :as log]
    [clojure.java.io :as io]
    [clojure.edn :as edn]
    [cljs.build.api]
-   [io.dominic.krei.alpha.impl.util :refer [deleting-tmp-dir]]
-   [io.dominic.krei.alpha.impl.debounce :as krei.debounce]
    [juxt.dirwatch :as dirwatch]
+   [juxt.kick.alpha.impl.util :refer [deleting-tmp-dir]]
+   [juxt.kick.alpha.impl.debounce :as krei.debounce]
    [me.raynes.fs :as fs]))
 
 (defn key->provider

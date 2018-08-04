@@ -1,9 +1,11 @@
+;; Copyright © 2018, JUXT LTD.
+
 ;; Suggested dependencies:
 ;; thheller/shadow-cljs {:mvn/version "2.0.123"}
 ;; As there's a bug in tools.deps.alpha (TDEPS-26), also add:
 ;; org.jboss.xnio/xnio-nio {:mvn/version "3.3.6.Final"}
 
-(ns io.dominic.krei.alpha.providers.shadow-cljs
+(ns juxt.kick.alpha.providers.shadow-cljs
   (:require
    [clojure.java.io :as io]
    [clojure.string :as string]
@@ -11,7 +13,7 @@
    [shadow.cljs.devtools.api :as shadow]
    [shadow.cljs.devtools.server :as shadow.server]
    [shadow.cljs.devtools.config :as shadow.config]
-   [io.dominic.krei.alpha.core :as kick]))
+   [juxt.kick.alpha.core :as kick]))
 
 (defmethod kick/init! :kick/shadow-cljs
   [_ {:keys [builds] :as config} {:kick.builder/keys [target classpath-dirs]}]

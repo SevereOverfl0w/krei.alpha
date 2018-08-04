@@ -1,4 +1,6 @@
-(ns io.dominic.krei.alpha.impl.util
+;; Copyright © 2018, JUXT LTD.
+
+(ns juxt.kick.alpha.impl.util
   (:require
     [me.raynes.fs :as fs])
   (:import
@@ -14,5 +16,3 @@
                         (fn []
                           (fs/delete-dir (.toFile tmp-path)))))
     tmp-path))
-
-
