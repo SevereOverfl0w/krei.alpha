@@ -9,7 +9,7 @@
    [cljs.build.api]
    [juxt.dirwatch :as dirwatch]
    [juxt.kick.alpha.impl.util :refer [deleting-tmp-dir]]
-   [juxt.kick.alpha.impl.debounce :as krei.debounce]
+   [juxt.kick.alpha.impl.debounce :as kick.debounce]
    [me.raynes.fs :as fs]))
 
 (defn key->provider
@@ -56,7 +56,6 @@
 
 (defn watch
   "Starts watching. Returns a function which will stop the watcher"
-  ;; TODO: Watch krei files & reconfigure figwheel on changes.
   [config]
   (let [builder-config (builder-config config)
 
@@ -82,8 +81,8 @@
                               {})))))
           {} config)
 
-        receiver (krei.debounce/receiver
-                   (krei.debounce/schedule
+        receiver (kick.debounce/receiver
+                   (kick.debounce/schedule
                      debounce-a
                      (fn [events]
                        (doseq [k (keys init-results)]
