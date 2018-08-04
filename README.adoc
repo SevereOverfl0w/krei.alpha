@@ -1,79 +1,29 @@
-= Krei
+= Kick
 
-A build-tool tailored for solving problems I have.
-
-== Rationale
-
-Krei is trying to solve the following problems:
-
-. Building web-apps using the `clj` command line tool
-. Building applications in a mono-repo, where your _dependencies_ have builds too
+Kick off internal processes, like builds, when files change.
 
 == Usage
 
-.Add to deps.edn
-[source]
-----
-io.dominic/krei.alpha {:git/url "https://github.com/SevereOverfl0w/krei.alpha.git"
-                       :sha "a18a13e83f81fde9eb437ec08c0426e90f0a8161"}
-----
+Fuller documentation on it's way. For now, see usage in
+https://github.com/juxt/edge[Edge].
 
-.Ensure target exists before starting the JVM
-[source]
-----
-$ mkdir -p target
-$ touch target/.gitkeep
-$ git add target/.gitkeep
-$ echo "**/target/**
-!**/target/.gitkeep" >> .gitignore
-----
+== Authors
 
-[source,clojure]
-.src/krei-file.edn
-----
-{:krei.sass/files ["platform/magic.scss"] <1>
- :krei.figwheel/builds [{:id "platform-app" <2>
-                         :figwheel true
-                         :compiler
-                         {:main myproject.platform.app
-                          :output-to "public/platform.js"
-                          :output-dir "public/platform"
-                          :asset-path "/public/platform/"}}]}
-----
-<1> Identify any scss files you'd like to have built
-<2> Identify builds of clojurescript
+Kick is derived from
+https://github.com/SevereOverfl0w/krei.alpha[krei], conceived and
+written by Dominic Monroe.
 
-=== During development
+* Dominic Monroe (dominic@juxt.pro)
+* Malcolm Sparks (malcolm@juxt.pro)
 
-[source,clojure]
-.dev/load-krei.clj
-----
-(ns ^{:clojure.tools.namespace.repl/load false}
-  load-krei
-  (:require
-    [io.dominic.krei.alpha.core :as krei]))
+== Copyright & License
 
-(def krei (krei/watch))
-----
+The MIT License (MIT)
 
-[source,clojure]
-.dev/user.clj
-----
-(ns user
-  (:require [load-krei]))
-----
+Copyright © 2018 JUXT LTD.
 
-=== Building for Production
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-I designed this to be run as part of a makefile or shell script.
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-[source]
-----
-$ clj -m io.dominic.krei.alpha.main production "$output-directory"
-----
-
-== FAQ
-
-[qanda]
-Why not use a component?:: Because components stop & start, and that is not something you generally want every time you `(reset)` for your cljs & file watcher.
-Will you support X?:: Maybe. I'm still figuring out the direction of Krei.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
