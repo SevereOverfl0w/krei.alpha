@@ -20,7 +20,9 @@
   (when-let [files' (and repl-api/*repl-api-system*
                          (->> files
                               (map str)
-                              (filter #(string/ends-with? % ".html"))
+                              (filter #(or
+                                         (string/ends-with? % ".html")
+                                         (string/ends-with? % ".adoc")))
                               seq))]
     (figwheel.server/send-message
       (:figwheel-system repl-api/*repl-api-system*)
