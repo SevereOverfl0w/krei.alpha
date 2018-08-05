@@ -54,6 +54,9 @@
     (update :kick.builder/target (comp #(.toPath %) io/file))
     (add-classpath-dirs)))
 
+(def ignorable? (some-fn
+                  #(re-matches #"\.#.*" %)))
+
 (defn watch
   "Starts watching. Returns a function which will stop the watcher"
   [config]
@@ -86,9 +89,8 @@
                      debounce-a
                      (fn [events]
                        (doseq [k (keys init-results)]
-                         (log/infof "Calling notify! on %s" k)
+                         (log/debugf "Calling notify! on %s, events are %s" k events)
                          (when-let [notify! (get-method notify! k)]
-                           (log/infof "(found fn for %s)" k)
                            (notify! k events (get init-results k)))))
                      50))
 
@@ -97,7 +99,9 @@
         watchers (mapv
                    (fn [path]
                      (dirwatch/watch-dir
-                       #(send debounce-a receiver %)
+                       (fn [event]
+                         (when-not (ignorable? (.getName (:file event)))
+                           (send debounce-a receiver event)))
                        (io/file path)))
                    (:kick.builder/classpath-dirs builder-config))]
 
@@ -105,5 +109,5 @@
       (run! dirwatch/close-watcher watchers)
       (doseq [[k v] init-results]
         (when-let [halt! (get-method halt! k)]
-          (log/infof "Calling halt! on %s" k)
+          (log/debugf "Calling halt! on %s" k)
           (halt! k v))))))
