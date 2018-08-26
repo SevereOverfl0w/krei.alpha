@@ -31,7 +31,7 @@
 
 (defmulti notify!
   "Notify a provider that file-system events have occurred."
-  {:arglists '([key events])}
+  {:arglists '([key events init-result])}
   (fn [key events init-result] key))
 
 (defn- add-classpath-dirs [builder-config]
@@ -93,8 +93,6 @@
                          (when-let [notify! (get-method notify! k)]
                            (notify! k events (get init-results k)))))
                      50))
-
-
 
         watchers (mapv
                    (fn [path]
