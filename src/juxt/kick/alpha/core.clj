@@ -62,7 +62,8 @@
   [config]
   (let [builder-config (builder-config config)
 
-        debounce-a (agent nil)
+        debounce-a (agent nil
+                          :error-handler (fn [error] (log/error error "Error in kick agent")))
 
         init-results
         (reduce-kv
@@ -91,7 +92,10 @@
                        (doseq [k (keys init-results)]
                          (log/debugf "Calling notify! on %s, events are %s" k events)
                          (when-let [notify! (get-method notify! k)]
-                           (notify! k events (get init-results k)))))
+                           (try
+                             (notify! k events (get init-results k))
+                             (catch Exception e
+                               (log/errorf e "Error during notification of %s" k))))))
                      50))
 
         watchers (mapv
