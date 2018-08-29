@@ -36,20 +36,29 @@
 
 (defmethod kick/init! :kick/figwheel
   [_ {:keys [builds]} {:kick.builder/keys [target classpath-dirs]}]
-  (let [target-relative #(.resolve target %)]
+  (let [target-relative #(when % (str (.resolve target %)))]
+
     (repl-api/start-figwheel!
       {:figwheel-options {:css-dirs [(str target)]}
 
        :build-ids (into [] (map :id builds))
 
-       :all-builds (into []
-                         (comp
-                           (map #(assoc % :source-paths (map str classpath-dirs)))
-                           (map #(update % :compiler merge {:optimizations :none}))
-                           (map #(update-in % [:compiler :preloads] conj 'juxt.kick.alpha.providers.figwheel.injector))
-                           (map #(update-in % [:compiler :output-dir] (comp str target-relative)))
-                           (map #(update-in % [:compiler :output-to] (comp str target-relative))))
-                         builds)})))
+       :all-builds
+       (into []
+             (comp
+               (map #(assoc % :source-paths
+                            (map str classpath-dirs)))
+               (map #(update % :compiler
+                             (fn [compiler] (merge {:optimizations :none} compiler))))
+               (map #(update % :compiler
+                             (fn [compiler]
+                               (cond-> compiler
+                                 (= (:optimizations compiler) :none)
+                                 (update :preloads
+                                         conj 'juxt.kick.alpha.providers.figwheel.injector)))))
+               (map #(update-in % [:compiler :output-dir] target-relative))
+               (map #(update-in % [:compiler :output-to] target-relative)))
+             builds)})))
 
 (defmethod kick/notify! :kick/figwheel [_ events _]
   (when repl-api/*repl-api-system*
