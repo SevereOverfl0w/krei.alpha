@@ -30,6 +30,11 @@
       (map (juxt (comp io/resource) identity))
       files)))
 
+(defmethod kick/init! :kick/sass [_ value opts]
+  (log/info "Initializing Sass builder")
+  (build-sass (:sources value) (:kick.builder/target opts))
+  (merge value opts))
+
 (defmethod kick/notify! :kick/sass [_ events init-result]
   ;; Could use spec here, not going to yet.
   (assert (:kick.builder/target init-result))
