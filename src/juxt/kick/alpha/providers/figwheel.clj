@@ -35,11 +35,14 @@
                 files')})))
 
 (defmethod kick/init! :kick/figwheel
-  [_ {:keys [builds]} {:kick.builder/keys [target classpath-dirs]}]
+  [_ {:keys [builds server-port]} {:kick.builder/keys [target classpath-dirs]}]
+
   (let [target-relative #(when % (str (.resolve target %)))]
 
     (repl-api/start-figwheel!
-      {:figwheel-options {:css-dirs [(str target)]}
+      {:figwheel-options (merge
+                           {:css-dirs [(str target)]}
+                           (when server-port {:server-port server-port}))
 
        :build-ids (into [] (map :id builds))
 
