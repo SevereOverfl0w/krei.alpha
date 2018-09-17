@@ -18,21 +18,25 @@
   ;; so leave stale files hanging around, it'll be fine, he says.
   ;; (fs/delete-dir "./target/public/css/")
   (log/debugf "Building Sass, output going to %s" target)
+  (log/debugf "Files is %s" files)
   (run!
-    (fn [[input-file relative-path]]
-      (sass/sass-compile-to-file
-        input-file
-        (io/file target
-                 (string/replace relative-path #"\.scss$" ".css"))
-        ;; TODO: Take options
-        {}))
-    (eduction
-      (map (juxt (comp io/resource) identity))
-      files)))
+   (fn [[input-file relative-path]]
+     (log/debugf "Input file is %s" input-file)
+     (sass/sass-compile-to-file
+      input-file
+      (io/file target
+               (string/replace relative-path #"\.scss$" ".css"))
+      {}))
+   (eduction
+    (map (juxt io/resource identity))
+    ;; If we can't find the resource (i.e. it is nil), then discard it (but we could error)
+    ;;(remove #(nil? (first %)))
+    files)))
 
 (defmethod kick/init! :kick/sass [_ value opts]
-  (log/info "Initializing Sass builder")
-  (build-sass (:sources value) (:kick.builder/target opts))
+  (log/infof "Initializing Sass builder: value is %s" value)
+  (doseq [build (:builds value)]
+    (build-sass (:sources build) (:kick.builder/target opts)))
   (merge value opts))
 
 (defmethod kick/notify! :kick/sass [_ events init-result]
