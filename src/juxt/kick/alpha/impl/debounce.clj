@@ -1,4 +1,6 @@
-(ns io.dominic.krei.alpha.impl.debounce
+;; Copyright © 2018, JUXT LTD.
+
+(ns juxt.kick.alpha.impl.debounce
   (:import
     [java.util.concurrent ScheduledThreadPoolExecutor TimeUnit]))
 

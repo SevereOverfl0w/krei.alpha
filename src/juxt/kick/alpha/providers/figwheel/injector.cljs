@@ -1,4 +1,6 @@
-(ns io.dominic.krei.alpha.figwheel-injector
+;; Copyright © 2018, JUXT LTD.
+
+(ns juxt.kick.alpha.providers.figwheel.injector
   "Adds support for html file reloading to figwheel"
   (:require
     [figwheel.client :as fig]))

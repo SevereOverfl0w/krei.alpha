@@ -1,0 +1,9 @@
+= Providers
+
+No providers are built-in by default to kick, although some are available:
+
+* Require the namespace, e.g. ...providers.figwheel
+* Bring your own dependency e.g. figwheel-sidecar
+
+NOTE: Dependency information can be found in comments at the top of
+the provider's code.
