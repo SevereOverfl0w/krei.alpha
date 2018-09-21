@@ -6,7 +6,6 @@
    [clojure.tools.logging :as log]
    [clojure.java.io :as io]
    [clojure.edn :as edn]
-   [cljs.build.api]
    [juxt.dirwatch :as dirwatch]
    [juxt.kick.alpha.impl.util :refer [deleting-tmp-dir]]
    [juxt.kick.alpha.impl.debounce :as kick.debounce]
