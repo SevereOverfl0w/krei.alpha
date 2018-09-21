@@ -4,14 +4,11 @@ Kick off internal processes, like builds, when files change.
 
 == Usage
 
-Fuller documentation on its way. For now, see usage in
-https://github.com/juxt/edge[Edge].
+Fuller documentation on its way. For now, see usage in https://github.com/juxt/edge[Edge].
 
 == Authors
 
-Kick is derived from
-https://github.com/SevereOverfl0w/krei.alpha[krei], conceived and
-written by Dominic Monroe.
+Kick is derived from https://github.com/SevereOverfl0w/krei.alpha[krei], conceived and written by Dominic Monroe.
 
 * Dominic Monroe (dominic@juxt.pro)
 * Malcolm Sparks (malcolm@juxt.pro)
