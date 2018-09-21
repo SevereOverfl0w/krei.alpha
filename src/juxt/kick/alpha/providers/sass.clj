@@ -44,3 +44,7 @@
 
   (when (some #(re-matches #".*\.s[ca]ss$" (.getName (:file %))) events)
     (build-sass (:sources init-result) (:kick.builder/target init-result))))
+
+(defmethod kick/oneshot! :kick/sass [_ value opts]
+  (doseq [build (:builds value)]
+    (build-sass (:sources build) (:kick.builder/target opts))))

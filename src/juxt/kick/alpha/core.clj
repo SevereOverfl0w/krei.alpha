@@ -33,6 +33,12 @@
   {:arglists '([key events init-result])}
   (fn [key events init-result] key))
 
+(defmulti oneshot!
+  {:arglists '([key value opts])}
+  (fn [key value opts] key))
+
+(defmethod oneshot! :default [_ _ _])
+
 (defn- add-classpath-dirs [builder-config]
   (assoc
     builder-config
@@ -112,3 +118,9 @@
         (when-let [halt! (get-method halt! k)]
           (log/debugf "Calling halt! on %s" k)
           (halt! k v))))))
+
+(defn build-once
+  [config]
+  (let [builder-config (builder-config config)]
+    (doseq [[k v] config]
+      (oneshot! k v builder-config))))

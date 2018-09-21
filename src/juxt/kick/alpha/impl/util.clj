@@ -9,7 +9,7 @@
 
 (defn deleting-tmp-dir
   [prefix]
-  (let [tmp-path (Files/createTempDirectory "fatjar-bootstrap"
+  (let [tmp-path (Files/createTempDirectory prefix
                                             (into-array FileAttribute []))]
     (.addShutdownHook (Runtime/getRuntime)
                       (Thread.

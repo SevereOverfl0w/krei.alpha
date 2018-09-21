@@ -8,12 +8,19 @@
   (:require
    [clojure.string :as string]
    [clojure.tools.logging :as log]
+   [clojure.java.io :as io]
+   [cljs.build.api :as cljs.build]
    [figwheel-sidecar.repl-api :as repl-api]
    [figwheel-sidecar.components.figwheel-server :as figwheel.server]
    [figwheel-sidecar.utils :as figwheel.utils]
-   [juxt.kick.alpha.core :as kick]))
+   [juxt.kick.alpha.core :as kick]
+   [juxt.kick.alpha.impl.util :refer [deleting-tmp-dir]]))
 
 ;; Figwheel
+
+(defn- target-relative
+  [relpath target]
+  (str (.resolve target relpath)))
 
 (defn- figwheel-notify
   [files figwheel-system]
@@ -34,10 +41,25 @@
                     :file (figwheel.utils/remove-root-path file)}])
                 files')})))
 
+(defn- update-contains
+  [m k & args]
+  (if (contains? m k)
+    (apply update m k args)
+    m))
+
+(defmethod kick/oneshot! :kick/figwheel
+  [_ {:keys [builds]} {:keys [classpath-dirs kick.builder/target]}]
+  (let [tmp-dir (deleting-tmp-dir "figwheel")]
+    (doseq [build builds]
+      (cljs.build/build (mapv str classpath-dirs)
+                        (-> (:compiler build)
+                            (update-contains :output-dir target-relative tmp-dir)
+                            (update-contains :output-to target-relative target))))))
+
 (defmethod kick/init! :kick/figwheel
   [_ {:keys [builds server-port]} {:kick.builder/keys [target classpath-dirs]}]
 
-  (let [target-relative #(when % (str (.resolve target %)))]
+  (let [target-relative #(when % (target-relative % target))]
 
     (repl-api/start-figwheel!
       {:figwheel-options (merge
