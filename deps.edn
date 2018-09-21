@@ -5,4 +5,10 @@
   {org.clojure/clojure {:mvn/version "1.9.0"}
    me.raynes/fs {:mvn/version "1.4.6"}
    juxt/dirwatch {:mvn/version "0.2.3"}
-   org.clojure/java.classpath {:mvn/version "0.3.0"}}}
+   org.clojure/java.classpath {:mvn/version "0.3.0"}}
+  
+  :aliases
+  {:provider/figwheel
+   {:extra-deps
+    {figwheel-sidecar {:mvn/version "0.5.17-SNAPSHOT"
+                       :exclusions [org.clojure/tools.nrepl]}}}}}
