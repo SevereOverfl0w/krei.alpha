@@ -13,28 +13,22 @@
 ;; Sass
 
 (defn build-sass
-  [files target]
+  [{:keys [source target]} destdir]
   ;; figwheel can't handle the deleting of this directory, and just blows up,
   ;; so leave stale files hanging around, it'll be fine, he says.
   ;; (fs/delete-dir "./target/public/css/")
-  (log/debugf "Building Sass, output going to %s" target)
-  (run!
-   (fn [[input-file relative-path]]
-     (if input-file
-       (sass/sass-compile-to-file
-        input-file
-        (io/file target
-                 (string/replace relative-path #"\.scss$" ".css"))
-        {})
-       (log/warnf "No resource found for %s on classpath" relative-path)))
-   (eduction
-    (map (juxt io/resource identity))
-    files)))
+  (let [output (io/file destdir target)]
+    (io/make-parents output)
+    (log/debugf "Building SCSS file %s, output going to %s" source output)
+    (if-let [input (io/resource source)]
+      (sass/sass-compile-to-file
+       input (io/file destdir target) {})
+      (log/warnf "No resource found for %s on classpath" source))))
 
 (defmethod kick/init! :kick/sass [_ value opts]
   (log/infof "Initializing Sass builder: value is %s" value)
   (doseq [build (:builds value)]
-    (build-sass (:sources build) (:kick.builder/target opts)))
+    (build-sass build (:kick.builder/target opts)))
   (merge value opts))
 
 (defmethod kick/notify! :kick/sass [_ events init-result]
