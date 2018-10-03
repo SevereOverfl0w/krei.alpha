@@ -61,29 +61,32 @@
 
   (let [target-relative #(when % (target-relative % target))]
 
+    (log/infof "Starting figwheel")
+
     (repl-api/start-figwheel!
-      {:figwheel-options (merge
-                           {:css-dirs [(str target)]}
-                           (when server-port {:server-port server-port}))
+     {:figwheel-options (merge
+                         {:css-dirs [(str target)]}
+                         (when server-port
+                           {:server-port server-port}))
 
-       :build-ids (into [] (map :id builds))
+      :build-ids (into [] (map :id builds))
 
-       :all-builds
-       (into []
-             (comp
-               (map #(assoc % :source-paths
-                            (map str classpath-dirs)))
-               (map #(update % :compiler
-                             (fn [compiler] (merge {:optimizations :none} compiler))))
-               (map #(update % :compiler
-                             (fn [compiler]
-                               (cond-> compiler
-                                 (= (:optimizations compiler) :none)
-                                 (update :preloads
-                                         conj 'juxt.kick.alpha.providers.figwheel.injector)))))
-               (map #(update-in % [:compiler :output-dir] target-relative))
-               (map #(update-in % [:compiler :output-to] target-relative)))
-             builds)})))
+      :all-builds
+      (into []
+            (comp
+             (map #(assoc % :source-paths
+                          (map str classpath-dirs)))
+             (map #(update % :compiler
+                           (fn [compiler] (merge {:optimizations :none} compiler))))
+             (map #(update % :compiler
+                           (fn [compiler]
+                             (cond-> compiler
+                               (= (:optimizations compiler) :none)
+                               (update :preloads
+                                       conj 'juxt.kick.alpha.providers.figwheel.injector)))))
+             (map #(update-in % [:compiler :output-dir] target-relative))
+             (map #(update-in % [:compiler :output-to] target-relative)))
+            builds)})))
 
 (defmethod kick/notify! :kick/figwheel [_ events _]
   (when repl-api/*repl-api-system*
