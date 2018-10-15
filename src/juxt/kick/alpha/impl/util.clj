@@ -16,3 +16,13 @@
                         (fn []
                           (fs/delete-dir (.toFile tmp-path)))))
     tmp-path))
+
+(defmacro when-ns
+  [ns & body]
+  (if (try
+          (require ns)
+          true
+          (catch java.io.FileNotFoundException e
+            false))
+    `(do ~@body)
+    `(do)))
