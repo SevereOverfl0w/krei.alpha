@@ -37,10 +37,10 @@
   (defmethod kick/notify! :kick/sass [_ events init-result]
     ;; Could use spec here, not going to yet.
     (assert (:kick.builder/target init-result))
-    (assert (:sources init-result))
 
     (when (some #(re-matches #".*\.s[ca]ss$" (.getName (:file %))) events)
-      (build-sass init-result (:kick.builder/target init-result))))
+      (doseq [build (:builds init-result)]
+        (build-sass build (:kick.builder/target init-result)))))
 
   (defmethod kick/oneshot! :kick/sass [_ value opts]
     (doseq [build (:builds value)]
