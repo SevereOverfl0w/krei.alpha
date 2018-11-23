@@ -42,7 +42,8 @@
   ;; Figwheel
   (require
     '[cljs.build.api :as cljs.build]
-    '[figwheel.main.api :as figwheel.api])
+    '[figwheel.main.api :as figwheel.api]
+    '[figwheel.main :refer [build-registry]])
 
   (defn- target-relative
     [relpath target]
@@ -97,5 +98,6 @@
   (defmethod kick/notify! :kick/figwheel-main [_ events _])
 
   (defmethod kick/halt! :kick/figwheel-main [_ {:keys [builds]}]
-    (doseq [{:keys [id]} builds]
+    (doseq [{:keys [id]} builds
+            :when (get @build-registry id)]
       (figwheel.api/stop id))))
