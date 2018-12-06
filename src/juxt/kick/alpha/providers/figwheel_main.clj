@@ -38,7 +38,7 @@
         (vals lib)))
     classpath-dirs))
 
-(def pack-paths
+(def kick-paths
   (some-> (System/getProperty "clojure.libfile")
           slurp
           edn/read-string
@@ -46,10 +46,10 @@
           :paths
           set))
 
-(defn pack?
+(defn kick?
   [file]
-  (when pack-paths
-    (pack-paths (str (.getAbsolutePath file)))))
+  (when kick-paths
+    (kick-paths (str (.getAbsolutePath file)))))
 
 (when-ns figwheel.main.api
   ;; Figwheel
@@ -91,7 +91,7 @@
                    ;; A bit of a bad solution is to only filter out kick, but
                    ;; it is probably the only library I've encountered so far
                    ;; with this problem.
-                   (update :watch-dirs concat (map str (remove pack? classpath-dirs)))
+                   (update :watch-dirs concat (map str (remove kick? classpath-dirs)))
                    ;; watch-dirs above fails a spec due to lack of cljs source
                    ;; files on the whole classpath, but @bhauman said it's more
                    ;; of a warning.
