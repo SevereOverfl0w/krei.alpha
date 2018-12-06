@@ -45,7 +45,8 @@
     :kick.builder/classpath-dirs
     (remove
       ;; Filter out build directory, as it's on the classpath in dev
-      #(= (.toPath %) (.toAbsolutePath (:kick.builder/target builder-config)))
+      #(= (.toAbsolutePath (.toPath %))
+          (.toAbsolutePath (:kick.builder/target builder-config)))
       (classpath/classpath-directories))))
 
 (defn builder-config [config]
