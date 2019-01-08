@@ -116,6 +116,7 @@
          :all-builds (into []
                            (comp (map :krei.figwheel/builds)
                                  cat
+                                 (map #(dissoc % :self-hosted?))
                                  (map #(assoc % :source-paths (map str classpath-dirs)))
                                  (map #(update % :compiler merge {:optimizations :none}))
                                  (map #(update-in % [:compiler :preloads] conj 'io.dominic.krei.alpha.figwheel-injector))
@@ -154,9 +155,15 @@
       (into []
             (comp (map :krei.figwheel/builds)
                   cat
+                  (map #(if (:self-hosted? %)
+                          (update % :compiler
+                                  assoc
+                                  :optimizations :simple
+                                  :optimize-constants false
+                                  :static-fns true)
+                          %))
                   (map :compiler)
                   (map #(assoc %
-                               :optimizations :advanced
                                :source-map false
                                :closure-defines {'goog.DEBUG false}
                                :output-dir (str (.resolve build-data "cljs"))))
