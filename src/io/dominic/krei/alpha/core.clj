@@ -161,7 +161,7 @@
                                   :optimizations :simple
                                   :optimize-constants false
                                   :static-fns true)
-                          %))
+                          (assoc-in % [:compiler :optimizations] :advanced)))
                   (map :compiler)
                   (map #(assoc %
                                :source-map false
