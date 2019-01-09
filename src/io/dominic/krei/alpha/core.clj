@@ -166,7 +166,8 @@
                   (map #(assoc %
                                :source-map false
                                :closure-defines {'goog.DEBUG false}
-                               :output-dir (str (.resolve build-data "cljs"))))
+                               :output-dir (str (.resolve (.resolve build-data "cljs")
+                                                          (:output-dir %)))))
                   (map (fn [c] (update c
                                        :output-to
                                        #(str (.resolve classpath-output %))))))
