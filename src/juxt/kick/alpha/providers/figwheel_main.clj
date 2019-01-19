@@ -79,37 +79,35 @@
     (let [target-relative #(when % (target-relative % target))]
 
       (apply figwheel.api/start
-             (doto
-              (-> figwheel-config
-                   (update :css-dirs conj (str target))
-                   (update :css-dirs concat (map str classpath-dirs))
-                   ;; watch-dirs is used to compile source code, despite
-                   ;; :build-inputs below.  This is problematic due to kick
-                   ;; containing figwheel integrations for sidecar, which don't
-                   ;; work under main.
+             (-> figwheel-config
+                 (update :css-dirs conj (str target))
+                 (update :css-dirs concat (map str classpath-dirs))
+                 ;; watch-dirs is used to compile source code, despite
+                 ;; :build-inputs below.  This is problematic due to kick
+                 ;; containing figwheel integrations for sidecar, which don't
+                 ;; work under main.
 
-                   ;; A bit of a bad solution is to only filter out kick, but
-                   ;; it is probably the only library I've encountered so far
-                   ;; with this problem.
-                   (update :watch-dirs concat (map str (remove kick? classpath-dirs)))
-                   ;; watch-dirs above fails a spec due to lack of cljs source
-                   ;; files on the whole classpath, but @bhauman said it's more
-                   ;; of a warning.
-                   (assoc :validate-config false)
-                   (assoc :build-inputs (concat [:main]
-                                                ;; This is because libs may
-                                                ;; contain uncompilable code,
-                                                ;; which figwheel will actively
-                                                ;; try and compile.  In
-                                                ;; particular, kick's sidecar
-                                                ;; injector is incompatible with
-                                                ;; figwheel main.
-                                                (filter-lib-dirs classpath-dirs)))
-                   (assoc :mode :serve)
-                   ;; Default to false, assuming that most users are using kick
-                   ;; within a context with other servers
-                   (assoc :open-url (:open-url figwheel-config false)))
-               clojure.pprint/pprint)
+                 ;; A bit of a bad solution is to only filter out kick, but
+                 ;; it is probably the only library I've encountered so far
+                 ;; with this problem.
+                 (update :watch-dirs concat (map str (remove kick? classpath-dirs)))
+                 ;; watch-dirs above fails a spec due to lack of cljs source
+                 ;; files on the whole classpath, but @bhauman said it's more
+                 ;; of a warning.
+                 (assoc :validate-config false)
+                 (assoc :build-inputs (concat [:main]
+                                              ;; This is because libs may
+                                              ;; contain uncompilable code,
+                                              ;; which figwheel will actively
+                                              ;; try and compile.  In
+                                              ;; particular, kick's sidecar
+                                              ;; injector is incompatible with
+                                              ;; figwheel main.
+                                              (filter-lib-dirs classpath-dirs)))
+                 (assoc :mode :serve)
+                 ;; Default to false, assuming that most users are using kick
+                 ;; within a context with other servers
+                 (assoc :open-url (:open-url figwheel-config false)))
              (map (fn [build]
                     {:id (:id build)
                      :options (-> build
