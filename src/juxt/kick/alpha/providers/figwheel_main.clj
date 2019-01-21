@@ -18,24 +18,29 @@
     (apply update m k args)
     m))
 
+(defn lib-dirs
+  []
+  (when-let [lib (some-> (System/getProperty "clojure.libfile")
+                         slurp
+                         edn/read-string)]
+    (eduction
+      (comp
+        (map :paths)
+        cat
+        (map io/file)
+        (filter (memfn isDirectory))
+        (map (memfn getCanonicalPath)))
+      (vals lib))))
+
 (defn- filter-lib-dirs
   "Remove directories from the classpath which are from libraries."
   [classpath-dirs]
-  (if-let [lib (some-> (System/getProperty "clojure.libfile")
-                       slurp
-                       edn/read-string)]
+  (if-let [lib-dirs (lib-dirs)]
     (reduce
       (fn [project-dirs v]
-        (filter #(= (.getCanonicalPath %) v) project-dirs))
+        (filter #(not= (.getCanonicalPath %) v) project-dirs))
       classpath-dirs
-      (eduction
-        (comp
-          (map :paths)
-          cat
-          (map io/file)
-          (filter (memfn isDirectory))
-          (map (memfn getCanonicalPath)))
-        (vals lib)))
+      lib-dirs)
     classpath-dirs))
 
 (def kick-paths
