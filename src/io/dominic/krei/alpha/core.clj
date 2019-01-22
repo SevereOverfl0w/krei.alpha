@@ -81,7 +81,9 @@
 
         debounce-a (agent nil
                           :error-handler (fn [a ex]
-                                           (.printStackTrace ex)
+                                           (if (= :sass4clj.core/error (:type (ex-data ex)))
+                                             (println (:formatted (ex-data ex)))
+                                             (.printStackTrace ex))
                                            (send a (constantly nil))))
 
         receiver (krei.debounce/receiver
