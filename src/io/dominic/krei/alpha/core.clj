@@ -79,7 +79,10 @@
                          #(= (.toPath %) (.toAbsolutePath target))
                          (classpath/classpath-directories))
 
-        debounce-a (agent nil)
+        debounce-a (agent nil
+                          :error-handler (fn [a ex]
+                                           (.printStackTrace ex)
+                                           (send a (constantly nil))))
 
         receiver (krei.debounce/receiver
                    (krei.debounce/schedule
