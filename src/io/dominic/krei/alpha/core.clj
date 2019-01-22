@@ -66,6 +66,20 @@
                     :file (figwheel.utils/remove-root-path file)}])
                 files')})))
 
+(defn- figwheel-notify-files-changed
+  [files]
+  (when-let [files' (and repl-api/*repl-api-system*
+                         (->> files (map str) seq))]
+    (figwheel.server/send-message
+      (:figwheel-system repl-api/*repl-api-system*)
+      ::figwheel.server/broadcast
+      {:msg-name :files-changed
+       :files (map
+                (fn [file]
+                  [{:type :file
+                    :file (figwheel.utils/remove-root-path file)}])
+                files')})))
+
 (defn watch
   "Returns a function which will stop the watcher"
   ;; TODO: Watch krei files & reconfigure figwheel on changes.
@@ -81,11 +95,26 @@
 
         debounce-a (agent nil
                           :error-handler (fn [a ex]
-                                           (println "An error occurred in while Krei was building:")
-                                           (if (= :sass4clj.core/error (:type (ex-data ex)))
-                                             (println (:formatted (ex-data ex)))
-                                             (.printStackTrace ex))
-                                           (send a (constantly nil))))
+                                           (let [ex-d (ex-data ex)]
+                                             (send a (constantly nil))
+                                             (println "An error occurred in while Krei was building:")
+                                             (if (= :sass4clj.core/error (:type (ex-data ex)))
+                                               (do
+                                                 (println (:formatted (ex-data ex)))
+                                                 (when-let [figwheel-system (:figwheel-system figwheel-sidecar.repl-api/*repl-api-system*)]
+                                                   (figwheel-sidecar.components.figwheel-server/send-message
+                                                     figwheel-system
+                                                     :figwheel-sidecar.components.figwheel-server/broadcast
+                                                     {:msg-name :compile-warning
+                                                      :message {:message (:message ex-d)
+                                                                :file (:file ex-d)
+                                                                :line (:line ex-d)
+                                                                :column (:column ex-d)
+                                                                :error-inline (let [formatted-lines (string/split-lines (:formatted ex-d))]
+                                                                                (map
+                                                                                  #(vector :error-message nil %)
+                                                                                  formatted-lines))}})))
+                                               (.printStackTrace ex)))))
 
         receiver (krei.debounce/receiver
                    (krei.debounce/schedule
@@ -97,7 +126,8 @@
                            repl-api/*repl-api-system*))
                        (when (some #(re-matches #".*\.s[ca]ss$" (.getName (:file %)))
                                    events)
-                         (build-sass)))
+                         (build-sass)
+                         (figwheel-notify-files-changed (map :file events))))
                      50))
 
         krei-builders (mapv
