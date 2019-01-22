@@ -81,6 +81,7 @@
 
         debounce-a (agent nil
                           :error-handler (fn [a ex]
+                                           (println "An error occurred in while Krei was building:")
                                            (if (= :sass4clj.core/error (:type (ex-data ex)))
                                              (println (:formatted (ex-data ex)))
                                              (.printStackTrace ex))
