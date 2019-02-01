@@ -69,7 +69,9 @@
   (let [builder-config (builder-config config)
 
         debounce-a (agent nil
-                          :error-handler (fn [error] (log/error error "Error in kick agent")))
+                          :error-handler (fn [a ex]
+                                           (send a (constantly nil))
+                                           (log/error ex "Error in kick agent")))
 
         init-results
         (reduce-kv
