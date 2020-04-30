@@ -65,7 +65,8 @@
 
   (defn- target-relative
     [relpath target]
-    (str (.resolve target relpath)))
+    (when (string? relpath)
+      (str (.resolve target relpath))))
 
   (defmethod kick/oneshot! :kick/figwheel-main
     [_ {:keys [builds]} {:keys [classpath-dirs kick.builder/target]}]
@@ -76,7 +77,8 @@
           (-> build
               (dissoc :id)
               (update-contains :output-dir target-relative tmp-dir)
-              (update-contains :output-to target-relative target))))))
+              (update-contains :output-to target-relative target)
+              (update-contains :source-map target-relative target))))))
 
   (defmethod kick/init! :kick/figwheel-main
     [_ {:keys [builds figwheel-config]} {:kick.builder/keys [target classpath-dirs]}]
@@ -118,7 +120,8 @@
                      :options (-> build
                                   (dissoc :id)
                                   (update-contains :output-dir target-relative)
-                                  (update-contains :output-to target-relative))})
+                                  (update-contains :output-to target-relative)
+                                  (update-contains :source-map target-relative target))})
                   builds))))
 
   (defmethod kick/notify! :kick/figwheel-main [_ events _])
