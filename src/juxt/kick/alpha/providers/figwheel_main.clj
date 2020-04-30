@@ -70,13 +70,15 @@
 
   (defmethod kick/oneshot! :kick/figwheel-main
     [_ {:keys [builds]} {:keys [classpath-dirs kick.builder/target]}]
-    (let [tmp-dir (deleting-tmp-dir "figwheel")]
+    (let [tmp-dir (delay (deleting-tmp-dir "figwheel"))]
       (doseq [build builds]
         (cljs.build/build
           (mapv str classpath-dirs)
           (-> build
               (dissoc :id)
-              (update-contains :output-dir target-relative tmp-dir)
+              (update-contains :output-dir target-relative (if (:source-map build)
+                                                             target
+                                                             @tmp-dir))
               (update-contains :output-to target-relative target)
               (update-contains :source-map target-relative target))))))
 
