@@ -20,9 +20,12 @@
 
 (defn lib-dirs
   []
-  (when-let [lib (some-> (System/getProperty "clojure.libfile")
+  (when-let [lib (some-> (or (some->> (System/getProperty "clojure.libfile")
+                                      (format "{:libs %s}"))
+                             (System/getProperty "clojure.basis"))
                          slurp
-                         edn/read-string)]
+                         edn/read-string
+                         :libs)]
     (eduction
       (comp
         (map :paths)
@@ -44,9 +47,12 @@
     classpath-dirs))
 
 (def kick-paths
-  (some-> (System/getProperty "clojure.libfile")
+  (some-> (or (some->> (System/getProperty "clojure.libfile")
+                       (format "{:libs %s}"))
+              (System/getProperty "clojure.basis"))
           slurp
           edn/read-string
+          :libs
           (get 'juxt/kick.alpha)
           :paths
           set))
